@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteRule ^([a-z]+)([\.html]*)$ index.php?model=$1 [L]
+#RewriteRule ^([a-z]+)/([a-z]+)\.html$ scripts/index.php?model=$1&action=$2 [L]
+#RewriteRule ^([a-z]+)/([a-z]+)/(.*)\.html$ scripts/index.php?model=$1&action=$2&param=$3 [L]
+
+#Redirect 302 /bbs http://bbs.gxyule.com
