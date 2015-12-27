@@ -31,12 +31,14 @@ class Template{
      */
     public function display($fileName){
         $this->fileName = $fileName;
-        if(file_exists($this->templateDir.'/'.$this->fileName)){
-            $compileFileName = $this->templateCompileDir.'/'.$this->file_safe_name().'.php';
-            if(!file_exists($compileFileName) || filemtime($compileFileName)< filemtime($this->templateDir.'/'.$this->fileName)){
+        if(file_exists($this->templateDir.$this->fileName)){
+            $compileFileName = $this->templateCompileDir.$this->file_safe_name().'.php';
+            //echo $compileFileName;
+            //echo $this->templateDir.$this->fileName;
+            //if(!file_exists($compileFileName) || filemtime($compileFileName)< filemtime($this->templateDir.$this->fileName)){
                 $this->del_old_file();
                 $this->compile();
-            }
+            //}
             extract($this->templateVar);
             include $compileFileName;
         }else{
@@ -55,9 +57,10 @@ class Template{
      * 编译
      */
     private function compile(){
-        $fileHandle = fopen($this->templateDir.'/'.$this->fileName, 'r');
+        $fileHandle = fopen($this->templateDir.$this->fileName, 'r');
+        $fileContent = '';
         while(!feof($fileHandle)){
-            $fileContent = fread($fileHandle,1024);
+            $fileContent .= fread($fileHandle,1024);
         }
         fclose($fileHandle);
         $fileContent = $this->template_replace($fileContent);
@@ -87,38 +90,47 @@ class Template{
      */
     private function template_replace($content){
         $orginArray = array(
-            '/<%loop\s+\$(\w+)\s+\$(\w+)%>/s',
-            '/<%loop\s+\$(\w+)\s+\$(\w+)\s+\$(\w+)%>/s',
-            '/<%elseloop%>(.+?)<%\/loop%>/s',
-            '/<%endloop%>/s',
-            '/<%if\s+\((.+?)\)%>/s',
-            '/<%endif%>/s',
-            '/<%elseif\s+\((.+?)\)%>/s',
-            '/<%else%>/s',
-            '/<%P:(.+?)%>/s',
-            '/<%C:(\w+)%>/s',
-            '/<%include:(.+?)%>/s',
-            '/<%F:(.+?)%>/s',
-            '/<%EF:(.+?)%>/s',
-            '/<%([a-zA-Z0-9_\[\]\'\"\$\.\x7f-\xff]+)%>/s',
+            '/<%section name=(\w+) loop=\$(\w+) start=%>/s',//0
+            '/<%loop\s+\$(\w+)\s+\$(\w+)\s+\$(\w+)%>/s',//1
+            '/<%elseloop%>(.+?)<%\/loop%>/s',//2
+            '/<%endloop%>/s',//3
+            '/<%if\s+\((.+?)\)%>/s',//4
+            '/<%endif%>/s',//5
+            '/<%elseif\s+\((.+?)\)%>/s',//6
+            '/<%else%>/s',//7
+            '/<%P:(.+?)%>/s',//8
+            '/<%\$(\w+)%>/s',//9 ok
+            '/<%include file="([\w\W]+?)"%>/s',//10 ok
+            '/<%F:(.+?)%>/s',//11
+            '/<%EF:(.+?)%>/s',//12
+            '/<%([a-zA-Z0-9_\[\]\'\"\$\.\x7f-\xff]+)%>/s',//13
         );
 
         $changeArray = array(
-            '<?php if(!empty($$1)&&is_array($$1)){$countLoop = 1;foreach($$1 as $$2){$countLoop++;?>',
-            '<?php if(!empty($$1)&&is_array($$1)){$countLoop = 1;foreach($$1 as $$2=>$$3){$countLoop++;?>',
-            '<?php }if(!empty($countLoop))$countLoop--;}else{?>$1<?php }?>',
-            '<?php }if(!empty($countLoop))$countLoop--;}?>',
-            '<?php if($1){?>',
-            '<?php }?>',
-            '<?php }elseif($1){?>',
-            '<?php }else{?>',
-            '<?php $1?>',
-            '<?php echo $1;?>',
-            '<?php include_once "'.$this->templateDir.'/$1";?>',
-            '<?php $1;?>',
-            '<?php echo $1;?>',
-            '<?php echo $$1;?>',
+            //'<?php if(!empty($$1)&&is_array($$1)){$countLoop = 1;foreach($$1 as $$2){$countLoop++;? >',//0
+            '<?php for($$1 = 0; ) {?>',//0
+            '<?php if(!empty($$1)&&is_array($$1)){$countLoop = 1;foreach($$1 as $$2=>$$3){$countLoop++;?>',//1
+            '<?php }if(!empty($countLoop))$countLoop--;}else{?>$1<?php }?>',//2
+            '<?php }if(!empty($countLoop))$countLoop--;}?>',//3
+            '<?php if($1){?>',//4
+            '<?php }?>',//5
+            '<?php }elseif($1){?>',//6
+            '<?php }else{?>',//7
+            '<?php $1?>',//8
+            '<?php echo $$1;?>',//9
+            '<?php include_once "'.$this->templateDir.'/$1";?>',//10
+            '<?php $1;?>',//11
+            '<?php echo $1;?>',//12
+            '<?php echo $$1;?>',//13
         );
+
+        foreach($orginArray as $k => $v) {
+            echo $k . '=>' .$v . "\r\n";
+            preg_match_all($orginArray[$k],$content,$result);
+            print_r($result);
+        }
+        echo $content;
+
         return $repContent=preg_replace($orginArray,$changeArray,$content);
     }
     /**

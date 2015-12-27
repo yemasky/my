@@ -423,7 +423,7 @@ abstract class BaseAction{
 			throw new Exception("template name cann't empty.");
 		}
 		// dispaly
-		/*
+
 		require (__ROOT_PATH . 'libs/Smarty/libs/Smarty.class.php');
 		$smarty = new Smarty();
 		$smarty->template_dir = __ROOT_TPLS_TPATH;
@@ -443,15 +443,15 @@ abstract class BaseAction{
 		$smarty->assign($objResponse->getTplValues());
 		// diplay the template
 		$smarty->display($tplName . ".tpl");
-		*/
 
-		$temp = new Template(__ROOT_TPLS_TPATH, __ROOT_TPLS_TPATH . "templates_c/");
+
+		/*$temp = new Template(__ROOT_TPLS_TPATH, __ROOT_TPLS_TPATH . "templates_c/");
 		//$temp -> setTpl($tplName.".htm");
 		//$temp -> assign($objResponse -> getTplValues());
 		$temp -> assign("__CHARSET", __CHARSET);
 		$temp -> assign("__LANGUAGE", __LANGUAGE);
 		$temp -> assign("__WEB", __WEB);
-		$temp -> display($tplName . ".tpl");
+		$temp -> display($tplName . ".tpl");*/
 	}
 }
 class NotFound extends BaseAction{
